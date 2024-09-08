@@ -57,6 +57,35 @@ app.post("/usersignin", (req, res) => {
     ).catch()
 
 })
+
+app.post("/adminlogin",(req,res)=>{
+    let input=req.body
+    let result=userModel.find({username:input.username}).then(
+        (response)=>{
+            if (response.length>0) {
+                const validator=bcrypt.compareSync(input.password,response[0].password)
+                if(validator)
+                {
+                    jwt.sign({emailid:input.username},"hostel-app",{expiresIn:"1d"},
+                    (error,token)=>{
+                        if (error) {
+                            res.json({"status":"Token Creation Failed"})
+
+                        } else {
+                            res.json({"status":"success","token":token})
+
+                        }
+                    })
+                }else
+                {
+                    res.json({"status":"Wrong Password"})
+                }
+            } else {
+                res.json({"status":"Invalid Authentication"}) 
+            }
+        }
+    ).catch()
+})
 app.listen(8080,()=>{
 console.log("server started")
 })
